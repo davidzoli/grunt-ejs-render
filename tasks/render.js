@@ -70,6 +70,12 @@ module.exports = function(grunt) {
 			return '';
 		};
 
+    methods.formatFilename = file => {
+      var filename = path.basename(file, '.yaml');
+      var keyName = _.camelize( _.slugify(filename));
+      return keyName;
+    }
+
 		if ( _.has(options, 'data')) {
 			if ( _.isArray(options.data) ) {
 
@@ -109,6 +115,7 @@ module.exports = function(grunt) {
 		this.files.forEach(function(file) {
 			var contents = file.src.map(function(filepath) {
 				options.filename = filepath;
+				options.foldername = path.dirname(filepath);
 				return render(filepath, options);
 			}).join('\n');
 
