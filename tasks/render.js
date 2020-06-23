@@ -47,8 +47,8 @@ module.exports = function(grunt) {
       return '';
     };
 
-    methods.formatFilename = file => {
-      var filename = path.basename(file, '.yaml');
+    methods.formatFilename = (file, ext = '') => {
+      var filename = path.basename(file, ext);
       var keyName = _.camelize( _.slugify(filename));
       return keyName;
     }
@@ -61,7 +61,7 @@ module.exports = function(grunt) {
             .map(function(filepath) {
               return grunt.file.expand({
                 filter: function(src) {
-                  return grunt.file.isFile(src) && (path.extname(src) === '.yaml');
+                  return grunt.file.isFile(src) && (path.extname(src) === '.yaml' || path.extname(src) === '.json');
                 }
               }, grunt.config.process(filepath));
             })
@@ -71,8 +71,10 @@ module.exports = function(grunt) {
 
         options.data = {};
         datapath.forEach(function (file) {
-          var keyName = methods.formatFilename(file);
-          options.data[keyName] = grunt.file.readYAML(file);
+          const ext = path.extname(file);
+          const keyName = methods.formatFilename(file, ext);
+          const fileData = ext === '.yaml' ? grunt.file.readYAML(file) : grunt.file.readJSON(file);
+          options.data[keyName] = fileData;
         });
 
       } else if (_.isFunction(options.data)) {
